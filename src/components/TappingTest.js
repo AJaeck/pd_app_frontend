@@ -1,7 +1,7 @@
 // src/components/TappingTest.js
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Badge } from 'react-bootstrap';
 
 const TEST_DURATION = 5; // in seconds
@@ -9,7 +9,7 @@ const TEST_DURATION = 5; // in seconds
 function TappingTest() {
    const [taps, setTaps] = useState(0);
    const [timeLeft, setTimeLeft] = useState(TEST_DURATION);
-
+   const { userId } = useParams();
    const navigate = useNavigate();
 
    const handleTap = () => {
@@ -25,16 +25,28 @@ function TappingTest() {
        }
    }, [timeLeft]);
 
+   const saveTappingResult = () => {
+       fetch(`http://localhost:5000/save-tapping-result/${userId}`, {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json'
+           },
+           body: JSON.stringify({ taps: taps })
+       })
+       .then(response => response.json())
+       .then(data => {
+           if (data.message === "Tapping result saved successfully!") {
+               // Navigate to the results page after saving
+               navigate(`/results/${userId}`);
+           }
+       })
+       .catch(error => console.error("Error saving tapping result:", error));
+   };
 
    React.useEffect(() => {
        if (timeLeft === 0) {
            // Save the result when the test is over
-           const results = JSON.parse(localStorage.getItem('tappingResults') || '[]');
-           results.push({ date: new Date(), taps });
-           localStorage.setItem('tappingResults', JSON.stringify(results));
-
-           // Optionally, navigate to a results page or show a message
-           navigate('/results');
+           saveTappingResult();
        }
    }, [timeLeft]);
 

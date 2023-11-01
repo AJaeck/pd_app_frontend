@@ -19,6 +19,24 @@ const LoadUserProfile = () => {
         fetchUsers();
     }, []);
 
+    const handleDeleteUser = async (userId) => {
+    try {
+        const response = await fetch(`http://localhost:5000/delete-user/${userId}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            // Filter out the deleted user
+            setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        } else {
+            const data = await response.json();
+            console.error("Error deleting user:", data.message);
+        }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+        }
+    };
+
+
     return (
         <Container className="mt-5">
             <Row className="justify-content-md-center">
@@ -26,11 +44,17 @@ const LoadUserProfile = () => {
                     <h4>Select a User</h4>
                     <ListGroup>
                         {users.map(user => (
-                            <ListGroup.Item key={user.id} action onClick={() => navigate(`/user-profile/${user.id}`)}>
-                                {`${user.first_name} ${user.last_name} (${user.dob})`}
+                            <ListGroup.Item key={user.id} className="user-item">
+                                <div className="d-flex justify-content-between">
+                                    <div onClick={() => navigate(`/user-profile/${user.id}`)}>
+                                        {`${user.first_name} ${user.last_name} (${user.dob})`}
+                                    </div>
+                                    <Button variant="danger" size="sm" onClick={() => handleDeleteUser(user.id)}>x</Button>
+                                </div>
                             </ListGroup.Item>
                         ))}
                     </ListGroup>
+
                 </Col>
             </Row>
             <Row className="justify-content-md-center mt-3">

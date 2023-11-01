@@ -17,8 +17,8 @@ function App() {
                 <Route path="/create-user" element={<CreateNewUser />} />
                 <Route path="/load-user" element={<LoadUserProfile />} />
                 <Route path="/user-profile/:userId" element={<UserProfile />} />
-                <Route path="/new-test" element={<NewTest />} />
-                <Route path="/results" element={<Results />} />
+                <Route path="/new-test/:userId" element={<NewTest />} />
+                <Route path="/results/:userId" element={<Results />} />
                 {/* ... other routes */}
             </Routes>
         </Router>

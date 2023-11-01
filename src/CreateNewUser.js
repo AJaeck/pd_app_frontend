@@ -36,10 +36,10 @@ const CreateUser = () => {
             const data = await response.json();
 
             if (response.ok) {
-                setAlertMessage(`User created successfully with ID: ${data.user_id}`);
+                setAlertMessage(`User created successfully with ID: ${data.user_id}🎉 You will be redirected to the user profile page`);
                 setAlertVariant('success');
                 setShowAlert(true);
-                setTimeout(() => navigate('/user-profile'), 2000); // Redirect to user-profile after 2 seconds
+                setTimeout(() => navigate(`/user-profile/${data.user_id}`), 2000); // Redirect to user-profile after 2 seconds
             } else if (response.status === 409) {
                 setAlertMessage(data.message);
                 setAlertVariant('danger');
