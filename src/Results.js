@@ -1,32 +1,53 @@
-import React, { useState,useEffect } from 'react';
-import { Bar } from 'react-chartjs-2';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Line } from 'react-chartjs-2';
 
 function Results() {
-    const [results, setResults] = useState([]);
+    const [result, setResult] = useState(null);
     const navigate = useNavigate();
     const { userId } = useParams();
 
     useEffect(() => {
-        // Fetch tapping results from the backend
-        fetch(`http://localhost:5000/get-tapping-results/${userId}`)
-            .then(response => response.json())
-            .then(data => setResults(data))
-            .catch(error => console.error("Error fetching tapping results:", error));
+        // Fetch the latest tapping result from local storage
+        const storedResults = JSON.parse(localStorage.getItem('tappingResults') || '[]');
+        if (storedResults.length > 0) {
+            // Assuming the last result in the array is the most recent one
+            const latestResult = storedResults[storedResults.length - 1];
+            setResult(latestResult);
+        }
     }, [userId]);
 
-    const data = {
-        labels: results.map(r => new Date(r.date).toLocaleDateString()),
-        datasets: [
-            {
-                label: '# of Taps',
-                data: results.map(r => r.taps),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
+    // Prepare the data for the chart if result is defined
+    const chartData = result ? {
+        labels: result.intervals.map((_, index) => index + 1),
+        datasets: [{
+            label: 'Time between Taps (ms)',
+            data: result.intervals,
+            fill: false,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgba(75, 192, 192, 0.6)',
+        }]
+    } : {};
+
+    const chartOptions = {
+        scales: {
+            y: {
+                beginAtZero: true,
+                type: 'linear', // Specify the scale type
+                title: {
+                    display: true,
+                    text: 'Time (ms)'
+                }
+            },
+            x: {
+                type: 'linear', // Specify the scale type
+                title: {
+                    display: true,
+                    text: 'Tap Number'
+                }
             }
-        ]
+        }
     };
 
     const handleGoBack = () => {
@@ -34,21 +55,20 @@ function Results() {
     };
 
     const handleStartTest = () => {
-        navigate(`/new-test/${userId}`); // assuming this is the path for NewTest.js page
+        navigate(`/new-test/${userId}`);
     };
 
     return (
         <Container>
             <Row className="justify-content-md-center mt-5">
-                <Col md={6}>
-                    <Bar data={data} />
+                <Col md={6} className="text-center">
+                    <h4>Total Time: {result ? (result.totalTime + ' ms') : 'No result'}</h4>
+                    {result && <Line data={chartData} options={chartOptions} />}
                 </Col>
             </Row>
             <Row className="justify-content-md-center mt-3">
-                <Col md="auto">
+                <Col md={6} className="d-flex justify-content-between">
                     <Button variant="primary" onClick={handleStartTest}>Start New Test</Button>
-                </Col>
-                <Col md="auto">
                     <Button variant="success" onClick={handleGoBack}>Go to Profile</Button>
                 </Col>
             </Row>

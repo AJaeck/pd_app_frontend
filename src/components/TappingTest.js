@@ -1,70 +1,64 @@
-// src/components/TappingTest.js
-
 import React, { useState } from 'react';
-import { useParams,useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Button, Badge } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 
-const TEST_DURATION = 5; // in seconds
+const MAX_TAPS = 15;
 
 function TappingTest() {
-   const [taps, setTaps] = useState(0);
-   const [timeLeft, setTimeLeft] = useState(TEST_DURATION);
-   const { userId } = useParams();
-   const navigate = useNavigate();
+    const [taps, setTaps] = useState([]);
+    const { userId } = useParams();
+    const navigate = useNavigate();
 
-   const handleTap = () => {
-       if (timeLeft > 0) {
-           setTaps(taps + 1);
-       }
-   };
+    const handleTap = () => {
+        if (taps.length <= MAX_TAPS) {
+            const currentTime = new Date().getTime();
+            setTaps(prevTaps => [...prevTaps, currentTime]);
+        }
+    };
 
-   React.useEffect(() => {
-       if (timeLeft > 0) {
-           const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-           return () => clearTimeout(timer);
-       }
-   }, [timeLeft]);
+    React.useEffect(() => {
+        if (taps.length === MAX_TAPS) {
+            // Calculate the intervals between each tap
+            const intervals = taps.slice(1).map((tap, index) => tap - taps[index]);
+            // Calculate the total time from the first to the last tap
+            const totalTime = taps[taps.length - 1] - taps[0];
 
-   const saveTappingResult = () => {
-       fetch(`http://localhost:5000/save-tapping-result/${userId}`, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/json'
-           },
-           body: JSON.stringify({ taps: taps })
-       })
-       .then(response => response.json())
-       .then(data => {
-           if (data.message === "Tapping result saved successfully!") {
-               // Navigate to the results page after saving
-               navigate(`/results/${userId}`);
-           }
-       })
-       .catch(error => console.error("Error saving tapping result:", error));
-   };
+            const result = {
+                date: new Date().toISOString(),
+                intervals,
+                totalTime
+            };
 
-   React.useEffect(() => {
-       if (timeLeft === 0) {
-           // Save the result when the test is over
-           saveTappingResult();
-       }
-   }, [timeLeft]);
+            // Store the result locally
+            const storedResults = JSON.parse(localStorage.getItem('tappingResults') || '[]');
+            storedResults.push(result);
+            localStorage.setItem('tappingResults', JSON.stringify(storedResults));
 
-   return (
-       <Container className="mt-5">
-           <Row className="justify-content-center">
-               <Col md={6} className="text-center">
-                   <Button variant="primary" size="lg" className="mb-3" onClick={handleTap}>Tap Here</Button>
-                   <div className="mb-2">
-                       Time Left: <Badge variant="secondary">{timeLeft}s</Badge>
-                   </div>
-                   <div>
-                       Taps: <Badge variant="success">{taps}</Badge>
-                   </div>
-               </Col>
-           </Row>
-       </Container>
-   );
+            // Navigate to the results page
+            navigate(`/results/${userId}`);
+        }
+    }, [taps, userId, navigate]);
+
+    return (
+        <Container className="mt-5">
+            <Row className="justify-content-center">
+                <Col className="text-center">
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        className="mb-3"
+                        style={{ width: '300px', height: '300px' }}
+                        onClick={handleTap}
+                    >
+                        Tap Here
+                    </Button>
+                    <div>
+                        Taps: {taps.length}
+                    </div>
+                </Col>
+            </Row>
+        </Container>
+    );
 }
 
 export default TappingTest;
