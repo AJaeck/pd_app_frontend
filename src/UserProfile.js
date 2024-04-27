@@ -19,8 +19,12 @@ const UserProfile = () => {
         navigate('/load-user');
     };
 
-    const handleStartTest = () => {
-        navigate(`/new-test/${userId}`);
+    const handleStartTapTest = () => {
+        navigate(`/new-tap-test/${userId}`);
+    };
+
+        const handleStartSpeechTest = () => {
+        navigate(`/new-speech-test/${userId}`);
     };
 
     const chartData = userData && {
@@ -42,7 +46,17 @@ const UserProfile = () => {
                 <Col md={6}>
                     {userData ? (
                         <>
-                            <h4>User Profile</h4>
+                                                        <Row className="justify-content-md-left mt-3">
+                                <Col md="auto">
+                                    <h4>User Profile</h4>
+                                </Col>
+                                <Col md="auto">
+                                    <Button onClick={handleSwitchUser}>Switch User</Button>
+                                </Col>
+                                <Col md="auto">
+                                    <Button variant="danger" type="button" onClick={() => navigate('/')}>Home</Button>
+                                </Col>
+                            </Row>
                             <p>Name: {userData.first_name} {userData.last_name}</p>
                             <p>Date of Birth: {userData.dob}</p>
 
@@ -55,13 +69,10 @@ const UserProfile = () => {
 
                             <Row className="justify-content-md-left mt-3">
                                 <Col md="auto">
-                                    <Button variant="success" onClick={handleStartTest}>Start New Test</Button>
+                                    <Button variant="success" onClick={handleStartTapTest}>New Tapping Test 👈</Button>
                                 </Col>
                                 <Col md="auto">
-                                    <Button onClick={handleSwitchUser}>Switch User</Button>
-                                </Col>
-                                <Col md="auto">
-                                    <Button variant="danger" type="button" onClick={() => navigate('/')}>Home</Button>
+                                    <Button variant="success" onClick={handleStartSpeechTest}>New Speech Test 🗣️</Button>
                                 </Col>
                             </Row>
                         </>

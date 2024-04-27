@@ -2,7 +2,7 @@ import React from 'react';
 import TappingTest from './components/TappingTest';
 import { Container, Row, Col } from 'react-bootstrap';
 
-function NewTest() {
+function NewTapTest() {
     return (
         <Container className="h-100">
             <Row className="justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
@@ -15,4 +15,4 @@ function NewTest() {
     );
 }
 
-export default NewTest;
+export default NewTapTest;

@@ -6,8 +6,10 @@ import LandingPage from './LandingPage';
 import CreateNewUser from './CreateNewUser';
 import UserProfile from './UserProfile';
 import LoadUserProfile from './LoadUserProfile';
-import NewTest from './NewTest';
+import NewSpeechTest from './NewSpeechTest';
+import NewTapTest from './NewTapTest';
 import Results from "./Results";
+import SpeechResults from "./SpeechResults";
 
 function App() {
     return (
@@ -17,8 +19,10 @@ function App() {
                 <Route path="/create-user" element={<CreateNewUser />} />
                 <Route path="/load-user" element={<LoadUserProfile />} />
                 <Route path="/user-profile/:userId" element={<UserProfile />} />
-                <Route path="/new-test/:userId" element={<NewTest />} />
+                <Route path="/new-tap-test/:userId" element={<NewTapTest />} />
+                <Route path="/new-speech-test/:userId" element={<NewSpeechTest />} />
                 <Route path="/results/:userId" element={<Results />} />
+                <Route path="/speech-results/:userId" element={<SpeechResults />} />
                 {/* ... other routes */}
             </Routes>
         </Router>
