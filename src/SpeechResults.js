@@ -6,7 +6,7 @@ function SpeechResults() {
     const { userId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
-    const { audioUrl } = location.state; // Receive the audio URL if passed via state
+    const { audioUrl, transcription } = location.state; // Receive the audio URL and transcription if passed via state
 
     const handleGoBack = () => {
         navigate(`/user-profile/${userId}`);
@@ -29,7 +29,7 @@ function SpeechResults() {
                             </Card.Text>
                             <Card.Title>Transcribed Text</Card.Title>
                             <Card.Text>
-                                Here you would display the transcribed text once it's processed.
+                                {transcription || "No transcription available"}
                             </Card.Text>
                             <audio controls src={audioUrl}>
                                 Your browser does not support the audio element.

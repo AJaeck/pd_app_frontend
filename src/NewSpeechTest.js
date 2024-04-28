@@ -40,6 +40,7 @@ function NewSpeechTest() {
                     setVolume(Math.round(average)); // Update volume state based on the average
                 };
 
+
                 const recorder = new MediaRecorder(stream);
                 setMediaRecorder(recorder);
                 recorder.start();
@@ -74,13 +75,35 @@ function NewSpeechTest() {
 
         mediaRecorder.ondataavailable = (event) => {
             const audioBlob = event.data;
-            const audioUrl = URL.createObjectURL(audioBlob);  // Create a URL for the audio blob
-
-            // Redirect to the speech results page with the audio URL and other necessary data
-            navigate(`/speech-results/${userId}`, { state: { audioUrl } });
+            uploadAudio(audioBlob, userId);
             };
         }
     };
+
+    // Function to upload audio and handle response
+    function uploadAudio(audioBlob, userId) {
+        const formData = new FormData();
+        formData.append('file', audioBlob);
+
+        fetch(`http://localhost:5000/upload-audio/${userId}`, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            if (data.transcription) {
+                const audioUrl = URL.createObjectURL(audioBlob); // Create a URL for the audio blob
+                navigate(`/speech-results/${userId}`, { state: { audioUrl, transcription: data.transcription } });
+            } else {
+                console.error('Failed to transcribe audio');
+            }
+        })
+        .catch((error) => {
+            console.error('Error uploading audio:', error);
+        });
+    }
+
 
 
     useEffect(() => {
