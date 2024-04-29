@@ -7,6 +7,7 @@ function SpeechResults() {
     const location = useLocation();
     const navigate = useNavigate();
     const { audioUrl, transcription } = location.state; // Receive the audio URL and transcription if passed via state
+    console.log(location.state);
 
     const handleGoBack = () => {
         navigate(`/user-profile/${userId}`);

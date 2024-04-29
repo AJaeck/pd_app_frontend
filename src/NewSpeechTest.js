@@ -6,7 +6,7 @@ function NewSpeechTest() {
     const [recording, setRecording] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [timer, setTimer] = useState(0);
-    const [volume, setVolume] = useState(0);  // State to hold the current volume level
+    const [volume, setVolume] = useState(0);
     const { userId } = useParams();
     const navigate = useNavigate();
 
@@ -20,46 +20,40 @@ function NewSpeechTest() {
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const analyzer = audioContext.createAnalyser();
                 const microphone = audioContext.createMediaStreamSource(stream);
+                const analyzer = audioContext.createAnalyser();
                 const scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
                 microphone.connect(analyzer);
                 analyzer.connect(scriptProcessor);
                 scriptProcessor.connect(audioContext.destination);
-                scriptProcessor.onaudioprocess = function() {
+                scriptProcessor.onaudioprocess = function(event) {
                     const array = new Uint8Array(analyzer.frequencyBinCount);
                     analyzer.getByteFrequencyData(array);
-                    let values = 0;
-
-                    array.forEach(value => {
-                        values += value;
-                    });
-
-                    const average = values / array.length;
-                    setVolume(Math.round(average)); // Update volume state based on the average
+                    const average = array.reduce((acc, value) => acc + value, 0) / array.length;
+                    setVolume(Math.round(average));
                 };
 
-
                 const recorder = new MediaRecorder(stream);
-                setMediaRecorder(recorder);
+                recorder.ondataavailable = (event) => {
+                    const audioBlob = event.data;
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    uploadAudio(audioBlob, userId, audioUrl);  // Now passing audioUrl directly
+                };
                 recorder.start();
                 setRecording(true);
+                setMediaRecorder(recorder);
 
                 const interval = setInterval(() => {
                     setTimer(t => t + 1);
                 }, 1000);
-
-                recorder.ondataavailable = (event) => {
-                    // Handle recorded data
-                };
 
                 recorder.onstop = () => {
                     clearInterval(interval);
                     scriptProcessor.disconnect();
                     analyzer.disconnect();
                     microphone.disconnect();
-                    // Optionally, navigate to the transcription page and send the audio for processing
+                    audioContext.close();
                 };
             })
             .catch(error => {
@@ -68,47 +62,39 @@ function NewSpeechTest() {
     };
 
     const handleStopRecording = () => {
-    if (mediaRecorder) {
-        mediaRecorder.stop();  // Stop the recording
-        setRecording(false);
-        setTimer(0);
-
-        mediaRecorder.ondataavailable = (event) => {
-            const audioBlob = event.data;
-            uploadAudio(audioBlob, userId);
-            };
+        if (mediaRecorder) {
+            mediaRecorder.stop();  // This will trigger `ondataavailable`
+            setRecording(false);
+            setTimer(0);
         }
     };
 
-    // Function to upload audio and handle response
-    function uploadAudio(audioBlob, userId) {
+    const uploadAudio = (audioBlob, userId, audioUrl) => {
         const formData = new FormData();
         formData.append('file', audioBlob);
-
         fetch(`http://localhost:5000/upload-audio/${userId}`, {
             method: 'POST',
             body: formData,
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Success:', data);
-            if (data.transcription) {
-                const audioUrl = URL.createObjectURL(audioBlob); // Create a URL for the audio blob
+            if (data.message) {
                 navigate(`/speech-results/${userId}`, { state: { audioUrl, transcription: data.transcription } });
-            } else {
-                console.error('Failed to transcribe audio');
+            } else if (data.error) {
+                // Display error and suggest re-recording
+                alert(`Error: ${data.reason}`);
             }
         })
         .catch((error) => {
             console.error('Error uploading audio:', error);
         });
-    }
-
-
+    };
 
     useEffect(() => {
         return () => {
-            mediaRecorder?.stream.getTracks().forEach(track => track.stop());
+            if (mediaRecorder) {
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
         };
     }, [mediaRecorder]);
 
@@ -120,14 +106,13 @@ function NewSpeechTest() {
                         {recording ? 'Stop Recording' : 'Start Recording'}
                     </Button>
                     <div>Timer: {formatTime(timer)}</div>
-                    <ProgressBar now={volume} max={255} label={`${volume} dB`} /> {/* Displaying the volume level */}
+                    <ProgressBar now={volume} max={255} label={`${volume} dB`} />
                 </Col>
             </Row>
-            <Row>
+            <Row className="justify-content-center">
                 <p>Einst stritten sich Nordwind und Sonne, wer von ihnen beiden wohl der Stärkere wäre, als ein Wanderer, der in einen warmen Mantel gehüllt war, des Weges daherkam. Sie wurden einig, dass derjenige für den Stärkeren gelten sollte, der den Wanderer zwingen würde, seinen Mantel abzunehmen. Der Nordwind blies mit aller Macht, aber je mehr er blies, desto fester hüllte sich der Wanderer in seinen Mantel ein. Endlich gab der Nordwind den Kampf auf. Nun erwärmte die Sonne die Luft mit ihren freundlichen Strahlen, und schon nach wenigen Augenblicken zog der Wanderer seinen Mantel aus. Da musste der Nordwind zugeben, dass die Sonne von ihnen beiden der Stärkere war.</p>
             </Row>
         </Container>
     );
 }
-
 export default NewSpeechTest;
