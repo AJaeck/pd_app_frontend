@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Button, Container, Row, Col, ListGroup } from 'react-bootstrap';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
+import Sidebar from './components/UserProfile/Sidebar'; // Adjust path as needed
+import './components/UserProfile/UserProfile.css'; // Ensure you have proper styling in CSS
 
-const UserProfile = () => {
+const Dashboard = () => {
     const { userId } = useParams();
     const [userData, setUserData] = useState(null);
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetch(`http://localhost:5000/get-user-data/${userId}`)
@@ -15,74 +16,51 @@ const UserProfile = () => {
             .catch(error => console.error("Error fetching user data:", error));
     }, [userId]);
 
-    const handleSwitchUser = () => {
-        navigate('/load-user');
-    };
-
-    const handleStartTapTest = () => {
-        navigate(`/new-tap-test/${userId}`);
-    };
-
-        const handleStartSpeechTest = () => {
-        navigate(`/new-speech-test/${userId}`);
-    };
-
     const chartData = userData && {
         labels: userData.results.map(r => new Date(r.date).toLocaleDateString()),
         datasets: [
             {
                 label: '# of Taps',
                 data: userData.results.map(r => r.taps),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(133, 193, 233, 0.6)',
+                borderColor: 'rgba(133, 193, 233, 1)',
                 borderWidth: 1
             }
         ]
     };
 
     return (
-        <Container className="mt-5">
-            <Row className="justify-content-md-center">
-                <Col md={6}>
+        <Container fluid className="mt-5 user-profile bg-light">
+            <Row>
+                <Col xs={2} id="sidebar-wrapper">
+                    <Sidebar />
+                </Col>
+                <container>
+                <Col xs={10} id="page-content-wrapper">
                     {userData ? (
                         <>
-                                                        <Row className="justify-content-md-left mt-3">
-                                <Col md="auto">
-                                    <h4>User Profile</h4>
-                                </Col>
-                                <Col md="auto">
-                                    <Button onClick={handleSwitchUser}>Switch User</Button>
-                                </Col>
-                                <Col md="auto">
-                                    <Button variant="danger" type="button" onClick={() => navigate('/')}>Home</Button>
-                                </Col>
-                            </Row>
-                            <p>Name: {userData.first_name} {userData.last_name}</p>
-                            <p>Date of Birth: {userData.dob}</p>
-
-                            <h5 className="mt-4">Test Results</h5>
-                            <Row className="justify-content-md-left mt-5">
-                                <Col md={8}>
-                                    <Bar data={chartData} options={{ maintainAspectRatio: false, responsive: true }} />
-                                </Col>
-                            </Row>
-
-                            <Row className="justify-content-md-left mt-3">
-                                <Col md="auto">
-                                    <Button variant="success" onClick={handleStartTapTest}>New Tapping Test 👈</Button>
-                                </Col>
-                                <Col md="auto">
-                                    <Button variant="success" onClick={handleStartSpeechTest}>New Speech Test 🗣️</Button>
-                                </Col>
-                            </Row>
+                            <Card className="mb-3 bg-white">
+                                <Card.Body>
+                                    <Card.Title>User Profile</Card.Title>
+                                    <Card.Text>Name: {userData.first_name} {userData.last_name}</Card.Text>
+                                    <Card.Text>Date of Birth: {userData.dob}</Card.Text>
+                                </Card.Body>
+                            </Card>
+                            <Card className="mb-3 bg-white">
+                                <Card.Body>
+                                    <Card.Title>Tapping Results</Card.Title>
+                                    <Bar data={chartData} options={{ responsive: true }} />
+                                </Card.Body>
+                            </Card>
                         </>
                     ) : (
                         <p>Loading...</p>
                     )}
                 </Col>
+                </container>
             </Row>
         </Container>
     );
 };
 
-export default UserProfile;
+export default Dashboard;

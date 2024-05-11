@@ -1,0 +1,77 @@
+.user-profile .card {
+    background-color: #f8f9fa; /* Light grey background */
+    border: none;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 20px; /* Ensure consistent spacing between cards */
+}
+
+.user-profile button {
+    margin-right: 10px;
+    margin-bottom: 10px; /* Adjust margin for visual spacing */
+}
+
+.user-profile .card-body {
+    padding: 20px;
+}
+
+/* Sidebar styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 250px; /* Set a fixed width for the sidebar */
+    padding: 25px;
+    z-index: 1000; /* Ensure sidebar is above other content */
+    overflow-y: auto; /* Allow scrolling within the sidebar */
+    transition: transform 0.3s ease-in-out; /* Smooth transition for collapsing */
+}
+
+.nav-link{
+    padding: 10px;
+}
+
+.nav-link:hover{
+    color: white;
+    background-color: lightskyblue;
+    border-radius: 5px;
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 767.98px) {
+    .sidebar {
+        width: 100%; /* Full width on smaller screens */
+        position: relative; /* Avoid fixed positioning on small screens */
+        height: auto;
+        transform: translateX(0); /* Reset transform for small screens */
+    }
+}
+
+/* Main content wrapper */
+#page-content-wrapper {
+    padding-left: 250px; /* Offset for sidebar width */
+    min-width: 0;
+    width: 100%;
+    transition: padding-left 0.3s ease-in-out; /* Smooth transition for padding */
+}
+
+/* Adjust content wrapper when sidebar is collapsed or on smaller screens */
+@media (max-width: 767.98px) {
+    #page-content-wrapper {
+        padding-left: 0; /* Remove padding when sidebar is not fixed */
+    }
+}
+
+/* Additional styles for navigation and headings within the sidebar */
+#sidebar-wrapper {
+    padding: 0; /* Reset padding */
+    font-size: 1rem; /* Standard font size for sidebar items */
+    line-height: 1.5; /* Standard line height for readability */
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem; /* Slightly larger font size for headings */
+    background-color: #ddd; /* Light background for headings to stand out */
+}
