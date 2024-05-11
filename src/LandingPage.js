@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Container, Row, Col } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const LandingPage = () => {
     const navigate = useNavigate();
@@ -18,6 +18,11 @@ const LandingPage = () => {
                 <Col md="auto">
                     <Button variant="secondary" size="lg" block onClick={() => navigate('/load-user')}>
                         Load Existing User
+                    </Button>
+                </Col>
+                <Col md="auto">
+                    <Button variant="info" size="lg" block >
+                        <a href="http://localhost:5000/speech-analysis" target="_blank"> Upload Audio File</a>
                     </Button>
                 </Col>
             </Row>
