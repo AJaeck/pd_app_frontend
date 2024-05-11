@@ -1,0 +1,30 @@
+/* Styling for Landing Page */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+.navbar {
+    background-color: #333; /* Dark background for navbar */
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #333;
+    padding-top: 2rem;
+}
+
+p {
+    font-size: 1.2rem;
+    color: #666;
+    padding-bottom: 2rem;
+}
+
+button {
+    padding: 1rem 1.5rem; /* Larger padding for easy interaction */
+    font-size: 1.2rem; /* Larger font size for readability */
+}
+
+/* Hover effects for buttons for better user feedback */
+button:hover {
+    opacity: 0.85;
+}
