@@ -1,6 +1,6 @@
 import React from 'react';
-import { Nav, Navbar } from "react-bootstrap";
-import {useNavigate, useParams} from "react-router-dom";
+import { Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Sidebar = () => {
     const navigate = useNavigate();
@@ -8,14 +8,6 @@ const Sidebar = () => {
 
     const handleSelect = (eventKey) => {
         navigate(eventKey);
-    };
-
-    const handleStartTapTest = () => {
-        navigate(`/new-tap-test/${userId}`);
-    };
-
-    const handleStartSpeechTest = () => {
-        navigate(`/new-speech-test/${userId}`);
     };
 
     return (
@@ -27,8 +19,11 @@ const Sidebar = () => {
                 <Navbar.Brand>Dashboard</Navbar.Brand>
                 <Nav.Link eventKey="/">🏠 Home</Nav.Link>
                 <Nav.Link eventKey="/load-user">👤 Switch User</Nav.Link>
-                <Nav.Link onClick={handleStartTapTest}>☝️Tapping Test</Nav.Link>
-                <Nav.Link onClick={handleStartSpeechTest}>🗣️ New Speech Test</Nav.Link>
+                <Nav.Link eventKey={`/new-tap-test/${userId}`}>☝️ Tapping Test</Nav.Link>
+                <NavDropdown title="🗣️ Speech Tasks" id="nav-dropdown">
+                    <NavDropdown.Item eventKey={`/new-speech-test/${userId}/pataka`}>Pataka</NavDropdown.Item>
+                    <NavDropdown.Item eventKey={`/new-speech-test/${userId}/reading`}>Reading</NavDropdown.Item>
+                </NavDropdown>
             </Navbar>
         </>
     );
