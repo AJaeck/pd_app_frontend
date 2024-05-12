@@ -9,8 +9,13 @@ function NewSpeechTest() {
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [timer, setTimer] = useState(0);
     const [volume, setVolume] = useState(0);
-    const { userId, taskType } = useParams(); // Assuming taskType is passed as URL parameter
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState('Google');  // Default to Google
+    const { userId, taskType } = useParams();
     const navigate = useNavigate();
+
+    const handleAlgorithmChange = (algorithm) => {
+        setSelectedAlgorithm(algorithm);
+    };
 
     const formatTime = (seconds) => {
         const mins = Math.floor(seconds / 60);
@@ -76,7 +81,7 @@ function NewSpeechTest() {
         const endpoint = taskType === 'pataka' ? 'pataka' : 'reading';
         const formData = new FormData();
         formData.append('file', audioBlob);
-
+        formData.append('algorithm', selectedAlgorithm);  // Append selected algorithm to form data
         fetch(`http://localhost:5000/process_speech_tasks/${endpoint}/${userId}`, {
             method: 'POST',
             body: formData,
@@ -106,7 +111,7 @@ function NewSpeechTest() {
     }, [mediaRecorder]);
 
     // Rendering based on task type
-    const TaskComponent = taskType === 'pataka' ? PatakaTask : ReadingTask;
+    const TaskComponent = taskType === 'pataka' ? PatakaTask : () => <ReadingTask onAlgorithmChange={handleAlgorithmChange} />;
 
     return (
         <Container className="mt-5">
