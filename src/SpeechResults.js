@@ -6,14 +6,14 @@ function SpeechResults() {
     const { userId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
-    const { audioUrl, transcription } = location.state; // Receive the audio URL and transcription if passed via state
+    const { audioUrl, results, endpoint } = location.state; // Receive the audio URL, the previous task type and processed audio results if passed via state
 
     const handleGoBack = () => {
         navigate(`/user-profile/${userId}`);
     };
 
     const handleStartTest = () => {
-        navigate(`/new-speech-test/${userId}`);
+        navigate(`/new-speech-test/${endpoint}/${userId}`);
     };
 
     return (
@@ -29,7 +29,7 @@ function SpeechResults() {
                             </Card.Text>
                             <Card.Title>Transcribed Text</Card.Title>
                             <Card.Text>
-                                {transcription || "No transcription available"}
+                                {results || "No transcription available"}
                             </Card.Text>
                             <audio controls src={audioUrl}>
                                 Your browser does not support the audio element.

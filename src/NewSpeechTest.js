@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, ProgressBar } from 'react-bootstrap';
-import readingTask from "./components/SpeechTasks/ReadingTask/ReadingTask";
+import ReadingTask from "./components/SpeechTasks/ReadingTask/ReadingTask";
+import PatakaTask from "./components/SpeechTasks/PatakaTask/PatakaTask";
 
 function NewSpeechTest() {
     const [recording, setRecording] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [timer, setTimer] = useState(0);
     const [volume, setVolume] = useState(0);
-    const { userId } = useParams();
+    const { userId, taskType } = useParams(); // Assuming taskType is passed as URL parameter
     const navigate = useNavigate();
 
     const formatTime = (seconds) => {
@@ -71,18 +72,23 @@ function NewSpeechTest() {
     };
 
     const uploadAudio = (audioBlob, userId, audioUrl) => {
+        // Determine endpoint or processing based on task type
+        const endpoint = taskType === 'pataka' ? 'pataka' : 'reading';
         const formData = new FormData();
         formData.append('file', audioBlob);
-        fetch(`http://localhost:5000/upload-audio/${userId}`, {
+
+        fetch(`http://localhost:5000/process_speech_tasks/${endpoint}/${userId}`, {
             method: 'POST',
             body: formData,
         })
         .then(response => response.json())
         .then(data => {
             if (data.message) {
-                navigate(`/speech-results/${userId}`, { state: { audioUrl, transcription: data.transcription } });
+                // Navigate with results from server response
+                console.log(data.message)
+                console.log(data)
+                navigate(`/speech-results/${userId}`, { state: { audioUrl, results: data.results, endpoint } });
             } else if (data.error) {
-                // Display error and suggest re-recording
                 alert(`Error: ${data.reason}`);
             }
         })
@@ -99,6 +105,9 @@ function NewSpeechTest() {
         };
     }, [mediaRecorder]);
 
+    // Rendering based on task type
+    const TaskComponent = taskType === 'pataka' ? PatakaTask : ReadingTask;
+
     return (
         <Container className="mt-5">
             <Row className="justify-content-center">
@@ -110,7 +119,7 @@ function NewSpeechTest() {
                     <ProgressBar now={volume} max={255} label={`${volume} dB`} />
                 </Col>
             </Row>
-            <readinTask />
+            <TaskComponent />
         </Container>
     );
 }

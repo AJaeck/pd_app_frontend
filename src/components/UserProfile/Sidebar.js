@@ -21,8 +21,8 @@ const Sidebar = () => {
                 <Nav.Link eventKey="/load-user">👤 Switch User</Nav.Link>
                 <Nav.Link eventKey={`/new-tap-test/${userId}`}>☝️ Tapping Test</Nav.Link>
                 <NavDropdown title="🗣️ Speech Tasks" id="nav-dropdown">
-                    <NavDropdown.Item eventKey={`/new-speech-test/${userId}/pataka`}>Pataka</NavDropdown.Item>
-                    <NavDropdown.Item eventKey={`/new-speech-test/${userId}/reading`}>Reading</NavDropdown.Item>
+                    <NavDropdown.Item eventKey={`/new-speech-test/pataka/${userId}`}>Pataka</NavDropdown.Item>
+                    <NavDropdown.Item eventKey={`/new-speech-test/reading/${userId}`}>Reading</NavDropdown.Item>
                 </NavDropdown>
             </Navbar>
         </>

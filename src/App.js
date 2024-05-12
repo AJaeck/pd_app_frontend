@@ -20,7 +20,7 @@ function App() {
                 <Route path="/load-user" element={<LoadUserProfile />} />
                 <Route path="/user-profile/:userId" element={<UserProfile />} />
                 <Route path="/new-tap-test/:userId" element={<NewTapTest />} />
-                <Route path="/new-speech-test/:userId/:taskType" element={<NewSpeechTest />} />
+                <Route path="/new-speech-test/:taskType/:userId" element={<NewSpeechTest />} />
                 <Route path="/results/:userId" element={<Results />} />
                 <Route path="/speech-results/:userId" element={<SpeechResults />} />
                 {/* ... other routes */}
