@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Button, ProgressBar } from 'react-bootstrap';
+import { Container, Row, Col, Button, ProgressBar, Spinner } from 'react-bootstrap';
 import ReadingTask from "./components/SpeechTasks/ReadingTask/ReadingTask";
 import PatakaTask from "./components/SpeechTasks/PatakaTask/PatakaTask";
 
@@ -9,12 +9,18 @@ function NewSpeechTest() {
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [timer, setTimer] = useState(0);
     const [volume, setVolume] = useState(0);
-    const [selectedAlgorithm, setSelectedAlgorithm] = useState('Google');  // Default to Google
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState('Whisper-Online');  // Default to Whisper-Online
+    const [selectedModelSize, setSelectedModelSize] = useState('base'); // Selected language model
+    const [isUploading, setIsUploading] = useState(false); // Track upload state
     const { userId, taskType } = useParams();
     const navigate = useNavigate();
 
     const handleAlgorithmChange = (algorithm) => {
         setSelectedAlgorithm(algorithm);
+    };
+
+    const handleModelSizeChange = (model) => {
+        setSelectedModelSize(model);
     };
 
     const formatTime = (seconds) => {
@@ -45,7 +51,7 @@ function NewSpeechTest() {
                 recorder.ondataavailable = (event) => {
                     const audioBlob = event.data;
                     const audioUrl = URL.createObjectURL(audioBlob);
-                    uploadAudio(audioBlob, userId, audioUrl);  // Now passing audioUrl directly
+                    uploadAudio(audioBlob, userId, audioUrl);
                 };
                 recorder.start();
                 setRecording(true);
@@ -70,37 +76,41 @@ function NewSpeechTest() {
 
     const handleStopRecording = () => {
         if (mediaRecorder) {
-            mediaRecorder.stop();  // This will trigger `ondataavailable`
+            mediaRecorder.stop();
             setRecording(false);
             setTimer(0);
         }
     };
 
     const uploadAudio = (audioBlob, userId, audioUrl) => {
-        // Determine endpoint or processing based on task type
+        // Start uploading
+        setIsUploading(true);
+
         const endpoint = taskType === 'pataka' ? 'pataka' : 'reading';
         const formData = new FormData();
         formData.append('file', audioBlob);
-        formData.append('algorithm', selectedAlgorithm);  // Append selected algorithm to form data
-        console.log(selectedAlgorithm)
+        formData.append('algorithm', selectedAlgorithm); // Append selected algorithm
+        formData.append('modelSize', selectedModelSize); // Append selected model size
+        console.log(formData)
         fetch(`http://localhost:5000/process_speech_tasks/${endpoint}/${userId}`, {
             method: 'POST',
             body: formData,
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                // Navigate with results from server response
-                console.log(data.message)
-                console.log(data)
-                navigate(`/speech-results/${userId}`, { state: { audioUrl, results: data.results, endpoint } });
-            } else if (data.error) {
-                alert(`Error: ${data.reason}`);
-            }
-        })
-        .catch((error) => {
-            console.error('Error uploading audio:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                setIsUploading(false); // End uploading
+                if (data.message) {
+                    navigate(`/speech-results/${userId}`, {
+                        state: { audioUrl, results: data.results, endpoint }
+                    });
+                } else if (data.error) {
+                    alert(`Error: ${data.reason}`);
+                }
+            })
+            .catch((error) => {
+                setIsUploading(false);
+                console.error('Error uploading audio:', error);
+            });
     };
 
     useEffect(() => {
@@ -111,29 +121,47 @@ function NewSpeechTest() {
         };
     }, [mediaRecorder]);
 
-    // Rendering based on task type
-    const TaskComponent = taskType === 'pataka'
+const TaskComponent = taskType === 'pataka'
     ? PatakaTask
     : () => (
         <ReadingTask
-            selectedAlgorithm={selectedAlgorithm} // Pass parent state
-            onAlgorithmChange={handleAlgorithmChange} // Pass updater function
+            selectedAlgorithm={selectedAlgorithm}
+            onAlgorithmChange={handleAlgorithmChange}
+            selectedModelSize={selectedModelSize} // Pass parent state
+            onModelSizeChange={handleModelSizeChange} // Pass updater function
         />
     );
 
+console.log("Algorithm:", selectedAlgorithm);
+console.log("Model Size:", selectedModelSize);
     return (
         <Container className="mt-5">
             <Row className="justify-content-center">
                 <Col className="text-center">
-                    <Button variant="primary" onClick={recording ? handleStopRecording : handleStartRecording}>
+                    {/* Disable button if uploading */}
+                    <Button
+                        variant="primary"
+                        onClick={recording ? handleStopRecording : handleStartRecording}
+                        disabled={isUploading}
+                    >
                         {recording ? 'Stop Recording' : 'Start Recording'}
                     </Button>
                     <div>Timer: {formatTime(timer)}</div>
                     <ProgressBar now={volume} max={255} label={`${volume} dB`} />
+                    {/* Show spinner and loading text during upload */}
+                    {isUploading && (
+                        <div className="mt-3">
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                            <div>Audio is being transcribed</div>
+                        </div>
+                    )}
                 </Col>
             </Row>
             <TaskComponent />
         </Container>
     );
 }
+
 export default NewSpeechTest;

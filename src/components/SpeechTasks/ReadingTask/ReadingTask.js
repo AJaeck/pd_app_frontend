@@ -1,43 +1,63 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Row, Form, Col, Container } from "react-bootstrap";
 
-function ReadingTask({ selectedAlgorithm, onAlgorithmChange }) { // Receive props from parent
+function ReadingTask({ selectedAlgorithm, onAlgorithmChange, selectedModelSize, onModelSizeChange }) { // Add new props
+
+    // Check if the selected algorithm requires language model selection
+    const requiresLanguageModel = [
+        'Whisper-Online',
+        'Whisper-Offline',
+        'WhisperX-Offline'
+    ].includes(selectedAlgorithm);
+
     return (
-        <>
-            <Container>
-                <Row className="justify-content-center mt-3">
-                    <p>
-                        Einst stritten sich Nordwind und Sonne, wer von ihnen beiden
-                        wohl der Stärkere wäre, als ein Wanderer, der in einen warmen
-                        Mantel gehüllt war, des Weges daherkam. Sie wurden einig, dass
-                        derjenige für den Stärkeren gelten sollte, der den Wanderer
-                        zwingen würde, seinen Mantel abzunehmen. Der Nordwind blies mit
-                        aller Macht, aber je mehr er blies, desto fester hüllte sich der
-                        Wanderer in seinen Mantel ein. Endlich gab der Nordwind den
-                        Kampf auf. Nun erwärmte die Sonne die Luft mit ihren freundlichen
-                        Strahlen, und schon nach wenigen Augenblicken zog der Wanderer
-                        seinen Mantel aus. Da musste der Nordwind zugeben, dass die Sonne
-                        von ihnen beiden der Stärkere war.
-                    </p>
-                </Row>
+        <Container>
+            <Row className="justify-content-center mt-3">
+                <p>
+                    Einst stritten sich Nordwind und Sonne, wer von ihnen beiden
+                    wohl der Stärkere wäre, als ein Wanderer, der in einen warmen
+                    Mantel gehüllt war, des Weges daherkam...
+                </p>
+            </Row>
+            <Row className="justify-content-center mt-3">
+                <Col md={6}>
+                    <Form.Group controlId="transcriptionAlgorithm">
+                        <Form.Label>Select Transcription Algorithm</Form.Label>
+                        <Form.Select
+                            value={selectedAlgorithm}
+                            onChange={(e) => onAlgorithmChange(e.target.value)}
+                        >
+                            <option value="Whisper-Online">Whisper (Online)</option>
+                            <option value="Whisper-Offline">Whisper (Offline)</option>
+                            <option value="WhisperX-Offline">WhisperX (Offline)</option>
+                            <option value="Google">Google</option>
+                            <option disabled value="Sphinx">Sphinx (Coming Soon)</option>
+                        </Form.Select>
+                    </Form.Group>
+                </Col>
+            </Row>
+            {requiresLanguageModel && (
                 <Row className="justify-content-center mt-3">
                     <Col md={6}>
-                        <Form.Group controlId="transcriptionAlgorithm">
-                            <Form.Label>Select Transcription Algorithm</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={selectedAlgorithm} // Controlled by parent state
-                                onChange={(e) => onAlgorithmChange(e.target.value)} // Update parent state
+                        <Form.Group controlId="languageModel">
+                            <Form.Label>Select Language Model</Form.Label>
+                            <Form.Select
+                                value={selectedModelSize} // Controlled by parent state
+                                onChange={(e) => onModelSizeChange(e.target.value)} // Update parent state
                             >
-                                <option value="IBM">IBM</option>
-                                <option value="Google">Google</option>
-                                <option value="Whisper">Whisper</option>
-                            </Form.Control>
+                                <option value="">-- Select Language Model --</option>
+                                <option value="tiny">Tiny</option>
+                                <option value="base">Base</option>
+                                <option value="small">Small</option>
+                                <option value="medium">Medium</option>
+                                <option value="large">Large (~10 GB VRAM)</option>
+                                <option value="turbo">Turbo</option>
+                            </Form.Select>
                         </Form.Group>
                     </Col>
                 </Row>
-            </Container>
-        </>
+            )}
+        </Container>
     );
 }
 
