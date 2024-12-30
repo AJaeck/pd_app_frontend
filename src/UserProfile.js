@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+} from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import Sidebar from './components/UserProfile/Sidebar'; // Adjust path as needed
 import './components/UserProfile/UserProfile.css'; // Ensure you have proper styling in CSS
+
+// Register Chart.js components - needed this fix for v3 of charts js 2
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Dashboard = () => {
     const { userId } = useParams();

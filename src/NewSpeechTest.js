@@ -82,6 +82,7 @@ function NewSpeechTest() {
         const formData = new FormData();
         formData.append('file', audioBlob);
         formData.append('algorithm', selectedAlgorithm);  // Append selected algorithm to form data
+        console.log(selectedAlgorithm)
         fetch(`http://localhost:5000/process_speech_tasks/${endpoint}/${userId}`, {
             method: 'POST',
             body: formData,
@@ -111,7 +112,14 @@ function NewSpeechTest() {
     }, [mediaRecorder]);
 
     // Rendering based on task type
-    const TaskComponent = taskType === 'pataka' ? PatakaTask : () => <ReadingTask onAlgorithmChange={handleAlgorithmChange} />;
+    const TaskComponent = taskType === 'pataka'
+    ? PatakaTask
+    : () => (
+        <ReadingTask
+            selectedAlgorithm={selectedAlgorithm} // Pass parent state
+            onAlgorithmChange={handleAlgorithmChange} // Pass updater function
+        />
+    );
 
     return (
         <Container className="mt-5">
