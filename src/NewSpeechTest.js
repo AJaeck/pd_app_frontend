@@ -9,7 +9,7 @@ function NewSpeechTest() {
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [timer, setTimer] = useState(0);
     const [volume, setVolume] = useState(0);
-    const [selectedAlgorithm, setSelectedAlgorithm] = useState('Whisper-Online');  // Default to Whisper-Online
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState('whisper');  // Default to vanilla Whisper
     const [selectedModelSize, setSelectedModelSize] = useState('base'); // Selected language model
     const [isUploading, setIsUploading] = useState(false); // Track upload state
     const { userId, taskType } = useParams();
@@ -91,7 +91,6 @@ function NewSpeechTest() {
         formData.append('file', audioBlob);
         formData.append('algorithm', selectedAlgorithm); // Append selected algorithm
         formData.append('modelSize', selectedModelSize); // Append selected model size
-        console.log(formData)
         fetch(`http://localhost:5000/process_speech_tasks/${endpoint}/${userId}`, {
             method: 'POST',
             body: formData,
@@ -132,8 +131,6 @@ const TaskComponent = taskType === 'pataka'
         />
     );
 
-console.log("Algorithm:", selectedAlgorithm);
-console.log("Model Size:", selectedModelSize);
     return (
         <Container className="mt-5">
             <Row className="justify-content-center">

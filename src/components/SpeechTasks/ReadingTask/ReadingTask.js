@@ -5,9 +5,8 @@ function ReadingTask({ selectedAlgorithm, onAlgorithmChange, selectedModelSize, 
 
     // Check if the selected algorithm requires language model selection
     const requiresLanguageModel = [
-        'Whisper-Online',
-        'Whisper-Offline',
-        'WhisperX-Offline'
+        'whisper',
+        'whisperx'
     ].includes(selectedAlgorithm);
 
     return (
@@ -27,11 +26,8 @@ function ReadingTask({ selectedAlgorithm, onAlgorithmChange, selectedModelSize, 
                             value={selectedAlgorithm}
                             onChange={(e) => onAlgorithmChange(e.target.value)}
                         >
-                            <option value="Whisper-Online">Whisper (Online)</option>
-                            <option value="Whisper-Offline">Whisper (Offline)</option>
-                            <option value="WhisperX-Offline">WhisperX (Offline)</option>
-                            <option value="Google">Google</option>
-                            <option disabled value="Sphinx">Sphinx (Coming Soon)</option>
+                            <option value="whisper">Whisper</option>
+                            <option value="whisperx">WhisperX</option>
                         </Form.Select>
                     </Form.Group>
                 </Col>
