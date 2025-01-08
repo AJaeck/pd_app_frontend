@@ -30,7 +30,12 @@ function NewSpeechTest() {
     };
 
     const handleStartRecording = () => {
-        navigator.mediaDevices.getUserMedia({ audio: true })
+        navigator.mediaDevices.getUserMedia({
+            audio: {
+                noiseSuppression: false, // Disable noise suppression
+                echoCancellation: false, // Disable echo cancellation
+            }
+        })
             .then(stream => {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const microphone = audioContext.createMediaStreamSource(stream);
